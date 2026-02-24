@@ -35,7 +35,7 @@ export default function RecipesPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Recipes</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
@@ -43,10 +43,10 @@ export default function RecipesPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowImport(true)} className="btn-secondary">
+          <button onClick={() => setShowImport(true)} className="btn-secondary flex-1 sm:flex-none justify-center">
             <Link className="w-4 h-4" /> Import URL
           </button>
-          <button onClick={() => { setEditRecipe(null); setShowForm(true); }} className="btn-primary">
+          <button onClick={() => { setEditRecipe(null); setShowForm(true); }} className="btn-primary flex-1 sm:flex-none justify-center">
             <Plus className="w-4 h-4" /> New Recipe
           </button>
         </div>
