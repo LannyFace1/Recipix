@@ -318,8 +318,9 @@ export default function MealPlannerPage() {
           ))}
         </div>
       </div>
-      {/* End desktop grid */}
-      </div>
+
+      {/* Modals */}
+      {picker && (
         <RecipePickerModal
           onPick={pickRecipe}
           onClose={() => setPicker(null)}
