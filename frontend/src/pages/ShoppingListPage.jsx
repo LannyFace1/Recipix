@@ -126,9 +126,9 @@ export default function ShoppingListPage() {
         </button>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* List sidebar */}
-        <div className="w-64 flex-shrink-0 space-y-2">
+        <div className="w-full md:w-64 flex-shrink-0 space-y-2">
           {lists.length === 0 ? (
             <div className="card p-6 text-center">
               <ShoppingCart className="w-10 h-10 text-gray-300 mx-auto mb-3" />
