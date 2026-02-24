@@ -209,8 +209,8 @@ export default function RecipeDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Ingredients */}
-        <div className="lg:col-span-1">
+        {/* Ingredients — full width on mobile, sidebar on desktop */}
+        <div className="lg:col-span-1 order-2 lg:order-1">
           <div className="card p-5 sticky top-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-gray-900 dark:text-white">Ingredients</h2>
@@ -272,7 +272,7 @@ export default function RecipeDetailPage() {
         </div>
 
         {/* Steps */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 order-1 lg:order-2">
           <div className="card p-5">
             <h2 className="font-bold text-gray-900 dark:text-white mb-4">Instructions</h2>
             <ol className="space-y-4">
