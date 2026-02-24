@@ -24,7 +24,7 @@ A beautiful, self-hosted recipe organizer and weekly meal planner inspired by th
 ### 1. Clone and configure
 
 ```bash
-git clone <your-repo>
+git clone https://github.com/LannyFace1/RecipeApp.git
 cd crouton-selfhosted
 cp .env.example .env
 ```
