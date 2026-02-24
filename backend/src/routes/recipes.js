@@ -34,11 +34,22 @@ const upload = multer({
 const RecipeSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().optional(),
+  // Allow empty string for source_url (not provided)
   source_url: z.string().url().optional().or(z.literal('')),
-  prep_time_minutes: z.coerce.number().int().min(0).optional(),
-  cook_time_minutes: z.coerce.number().int().min(0).optional(),
+  prep_time_minutes: z.preprocess(
+    v => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().min(0).optional()
+  ),
+  cook_time_minutes: z.preprocess(
+    v => (v === '' || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().min(0).optional()
+  ),
   servings: z.coerce.number().int().min(1).default(4),
-  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+  // FIX: empty string '' from unselected <select> must be treated as undefined
+  difficulty: z.preprocess(
+    v => (v === '' || v === null || v === undefined ? undefined : v),
+    z.enum(['easy', 'medium', 'hard']).optional()
+  ),
   notes: z.string().optional(),
   unit_system: z.enum(['metric', 'imperial']).default('metric'),
   ingredients: z.array(z.object({
@@ -138,9 +149,9 @@ router.post('/', upload.single('photo'), async (req, res, next) => {
       `INSERT INTO recipes(user_id, title, description, source_url, photo_path, prep_time_minutes,
         cook_time_minutes, servings, difficulty, notes, unit_system)
        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-      [req.userId, data.title, data.description, data.source_url, photoPath,
-       data.prep_time_minutes, data.cook_time_minutes, data.servings,
-       data.difficulty, data.notes, data.unit_system]
+      [req.userId, data.title, data.description, data.source_url || null, photoPath,
+       data.prep_time_minutes ?? null, data.cook_time_minutes ?? null, data.servings,
+       data.difficulty ?? null, data.notes, data.unit_system]
     );
 
     // Insert ingredients
@@ -148,7 +159,7 @@ router.post('/', upload.single('photo'), async (req, res, next) => {
       const ing = data.ingredients[i];
       await db.query(
         'INSERT INTO ingredients(recipe_id, sort_order, name, amount, unit, notes) VALUES($1,$2,$3,$4,$5,$6)',
-        [recipe.id, i, ing.name, ing.amount, ing.unit, ing.notes]
+        [recipe.id, i, ing.name, ing.amount ?? null, ing.unit ?? null, ing.notes ?? null]
       );
     }
 
@@ -157,7 +168,7 @@ router.post('/', upload.single('photo'), async (req, res, next) => {
       const step = data.steps[i];
       await db.query(
         'INSERT INTO steps(recipe_id, sort_order, instruction, timer_seconds) VALUES($1,$2,$3,$4)',
-        [recipe.id, i, step.instruction, step.timer_seconds]
+        [recipe.id, i, step.instruction, step.timer_seconds ?? null]
       );
     }
 
@@ -195,9 +206,9 @@ router.put('/:id', upload.single('photo'), async (req, res, next) => {
         prep_time_minutes=$5, cook_time_minutes=$6, servings=$7, difficulty=$8,
         notes=$9, unit_system=$10, updated_at=NOW()
        WHERE id=$11 RETURNING *`,
-      [data.title, data.description, data.source_url, photoPath,
-       data.prep_time_minutes, data.cook_time_minutes, data.servings,
-       data.difficulty, data.notes, data.unit_system, req.params.id]
+      [data.title, data.description, data.source_url || null, photoPath,
+       data.prep_time_minutes ?? null, data.cook_time_minutes ?? null, data.servings,
+       data.difficulty ?? null, data.notes, data.unit_system, req.params.id]
     );
 
     // Replace ingredients & steps
@@ -208,14 +219,14 @@ router.put('/:id', upload.single('photo'), async (req, res, next) => {
       const ing = data.ingredients[i];
       await db.query(
         'INSERT INTO ingredients(recipe_id, sort_order, name, amount, unit, notes) VALUES($1,$2,$3,$4,$5,$6)',
-        [recipe.id, i, ing.name, ing.amount, ing.unit, ing.notes]
+        [recipe.id, i, ing.name, ing.amount ?? null, ing.unit ?? null, ing.notes ?? null]
       );
     }
     for (let i = 0; i < data.steps.length; i++) {
       const step = data.steps[i];
       await db.query(
         'INSERT INTO steps(recipe_id, sort_order, instruction, timer_seconds) VALUES($1,$2,$3,$4)',
-        [recipe.id, i, step.instruction, step.timer_seconds]
+        [recipe.id, i, step.instruction, step.timer_seconds ?? null]
       );
     }
 
