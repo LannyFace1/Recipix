@@ -1,4 +1,4 @@
-# 🥘 Crouton — Self-Hosted Recipe Organizer & Meal Planner
+# 🥘 Recipix — Self-Hosted Recipe Organizer & Meal Planner
 
 A beautiful, self-hosted recipe organizer and weekly meal planner inspired by the Crouton iOS app. All your data stays on your server.
 
