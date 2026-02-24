@@ -71,6 +71,10 @@ export default function MealPlannerPage() {
   const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [picker, setPicker] = useState(null); // { day, slot }
+  const [mobileDay, setMobileDay] = useState(() => {
+    const today = new Date().getDay();
+    return today === 0 ? 6 : today - 1;
+  });
   const [showAI, setShowAI] = useState(false);
 
   const weekStart = format(currentWeek, 'yyyy-MM-dd');
@@ -130,7 +134,7 @@ export default function MealPlannerPage() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meal Planner</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -139,7 +143,7 @@ export default function MealPlannerPage() {
         </div>
         <div className="flex gap-2">
           {plan && (
-            <button onClick={generateShoppingList} className="btn-secondary">
+            <button onClick={generateShoppingList} className="btn-secondary flex-1 sm:flex-none justify-center">
               <ShoppingCart className="w-4 h-4" /> Shopping List
             </button>
           )}
@@ -147,7 +151,7 @@ export default function MealPlannerPage() {
             onClick={() => setShowAI(true)}
             disabled={!aiStatus?.enabled}
             title={!aiStatus?.enabled ? 'Set CLAUDE_API_KEY in .env to enable AI' : 'Generate meal plan with AI'}
-            className={clsx('btn-secondary gap-2', !aiStatus?.enabled && 'opacity-60 cursor-not-allowed')}
+            className={clsx('btn-secondary flex-1 sm:flex-none justify-center gap-2', !aiStatus?.enabled && 'opacity-60 cursor-not-allowed')}
           >
             {aiStatus?.enabled ? <Sparkles className="w-4 h-4 text-purple-500" /> : <Lock className="w-4 h-4" />}
             AI Generate
@@ -171,8 +175,75 @@ export default function MealPlannerPage() {
         </button>
       </div>
 
-      {/* Grid */}
-      <div className="overflow-x-auto pb-4">
+      {/* Mobile: Day tabs */}
+      <div className="md:hidden">
+        {/* Day selector */}
+        <div className="flex gap-1 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+          {DAYS.map((day, i) => {
+            const date = addDays(currentWeek, i);
+            const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+            return (
+              <button key={i} onClick={() => setMobileDay(i)}
+                className={clsx(
+                  'flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-sm font-medium transition-all',
+                  mobileDay === i
+                    ? 'bg-brand-500 text-white shadow-md'
+                    : isToday
+                    ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                )}>
+                <span>{day}</span>
+                <span className="text-xs opacity-70">{format(date, 'd')}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Slots for selected day */}
+        <div className="space-y-3">
+          {SLOTS.map(slot => {
+            const entry = getEntry(mobileDay, slot);
+            return (
+              <div key={slot} className={clsx('card p-3 bg-gradient-to-br border', SLOT_COLORS[slot])}>
+                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide capitalize mb-2">
+                  {slot}
+                </p>
+                {entry?.recipe_id ? (
+                  <div className="flex items-center gap-3">
+                    {entry.photo_path ? (
+                      <img src={entry.photo_path} alt={entry.title}
+                        className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-white/50 dark:bg-gray-800/50 flex items-center justify-center flex-shrink-0">
+                        <span className="text-2xl">🍽️</span>
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{entry.title}</p>
+                    </div>
+                    <button
+                      onClick={() => deleteMutation.mutate({ planId: plan.id, day: mobileDay, slot })}
+                      className="p-1.5 text-gray-400 hover:text-red-500 flex-shrink-0">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => openPicker(mobileDay, slot)}
+                    className="w-full flex items-center justify-center gap-2 py-3 text-gray-400 dark:text-gray-500 
+                               hover:text-brand-500 transition-colors border-2 border-dashed border-gray-200 
+                               dark:border-gray-700 rounded-xl">
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm">Add recipe</span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Desktop: Full week grid */}
+      <div className="hidden md:block overflow-x-auto pb-4">
         <div className="min-w-[900px]">
           {/* Day headers */}
           <div className="grid grid-cols-8 gap-2 mb-2">
@@ -247,8 +318,8 @@ export default function MealPlannerPage() {
           ))}
         </div>
       </div>
-
-      {picker && (
+      {/* End desktop grid */}
+      </div>
         <RecipePickerModal
           onPick={pickRecipe}
           onClose={() => setPicker(null)}
