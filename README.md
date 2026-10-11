@@ -1,8 +1,8 @@
-# 🥘 Recipix — Self-Hosted Recipe Organizer & Meal Planner
+# Recipix — Self-Hosted Recipe Organizer & Meal Planner
 
 A beautiful, self-hosted recipe organizer and weekly meal planner inspired by the Crouton iOS app. All your data stays on your server.
 
-## ✨ Features
+## Features
 
 | Feature | Status |
 |---|---|
@@ -19,7 +19,7 @@ A beautiful, self-hosted recipe organizer and weekly meal planner inspired by th
 | AI meal plan generation (Claude API) | ⚙️ Optional |
 | Multi-user (each user has own recipes) | ✅ |
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone and configure
 
@@ -57,7 +57,7 @@ docker compose down          # stop
 docker compose pull && docker compose up -d  # update
 ```
 
-## 🤖 AI Meal Planning (Optional)
+## AI Meal Planning (Optional)
 
 1. Get an API key at [console.anthropic.com](https://console.anthropic.com)
 2. Add to `.env`: `CLAUDE_API_KEY=sk-ant-api03-...`
@@ -65,7 +65,7 @@ docker compose pull && docker compose up -d  # update
 
 In the Meal Planner, the "AI Generate" button will now be unlocked. Claude will automatically pick recipes from your library to fill the week with varied, balanced meals.
 
-## 🔐 Security
+## Security
 
 ```
 ✅ SQL Injection:    Parameterized queries (pg)
@@ -79,7 +79,7 @@ In the Meal Planner, the "AI Generate" button will now be unlocked. Claude will 
 ✅ Docker:          Alpine images, non-root user
 ```
 
-## 📁 Architecture
+## Architecture
 
 ```
 crouton-selfhosted/
@@ -101,7 +101,7 @@ crouton-selfhosted/
 
 **Backend → Frontend** communicates via REST API. Nginx routes `/api/*` → backend, `/*` → frontend SPA. PostgreSQL stores all data in named volumes (persisted across restarts).
 
-## 💡 Tips
+## Tips
 
 - **Backup your data:** `docker compose exec postgres pg_dump -U crouton crouton > backup.sql`
 - **HTTPS:** Put Nginx behind Traefik or Caddy with Let's Encrypt for SSL
